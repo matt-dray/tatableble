@@ -1,0 +1,54 @@
+---
+title: "Tatableble"
+subtitle: "A table of table-making packages"
+format: html
+---
+
+::: {.callout-warning}
+Work in progress. See the source [on GitHub](github.com/matt-dray/tatableble).
+:::
+
+```{r}
+#| label: table-table
+#| echo: false
+
+pacman::p_load("readr", "dplyr", "purrr", "reactable", "fontawesome", "htmltools")
+
+dat_in <- readr::read_csv(
+  file.path("data", "tables.csv"),
+  show_col_types = FALSE
+)
+
+dat_in |>
+  dplyr::filter(package != "mmtable2") |>
+  dplyr::pull(package) |> 
+  pacman::p_load(char = _)
+
+pacman::p_load_gh("ianmoran11/mmtable2")
+
+dat <- dat_in |>
+  dplyr::mutate(
+    version = purrr::map(package, \(x) utils::packageVersion(x)),
+    dep_count = purrr::map(
+      package,
+      \(x) tools::package_dependencies(x) |> purrr::pluck(1) |> length()
+    )
+  )
+
+make_link_fa <- function(cell_value, icon_yes, icon_no = "xmark") {
+  if (is.na(cell_value)) {
+    fontawesome::fa_i(icon_no)
+  } else {
+    htmltools::tags$a(href = cell_value, fa_i(icon_yes))
+  }
+}
+
+reactable::reactable(
+  dat,
+  columns = list(
+    cran = reactable::colDef(cell = \(value) make_link_fa(value, "r-project")),
+    source = reactable::colDef(cell = \(value) make_link_fa(value, "github")),
+    web = reactable::colDef(cell = \(value) make_link_fa(value, "globe"))
+  )
+)
+```
