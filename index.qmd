@@ -5,7 +5,7 @@ format: html
 ---
 
 ::: {.callout-warning}
-Work in progress. See the source [on GitHub](github.com/matt-dray/tatableble).
+Work in progress. See the source [on GitHub](https://github.com/matt-dray/tatableble).
 :::
 
 ```{r}
